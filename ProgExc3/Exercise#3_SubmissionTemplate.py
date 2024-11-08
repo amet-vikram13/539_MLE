@@ -43,7 +43,7 @@ from IPython.display import display, Latex
 
 # ### (a)
 
-# In[3]:
+# In[2]:
 
 
 df = pd.read_csv("NoiseClassificationTrainingData.csv")
@@ -58,6 +58,9 @@ grouped = groups["NoiseLevel"]
 # print("\n")
 # print("The label name of all classes:", grouped.groups.keys())
 # print("\n")
+
+# Getting the class label for all classes
+class_keys = grouped.groups.keys()
 
 # nj vector which stores count of individual classes
 n_j = grouped.count()
@@ -77,10 +80,10 @@ print("\n")
 # Now here we will apply formula for common covariance matrix but
 # since we have only one feature vector the equation will reduce to 
 # calculating simple scaler common variance. Although we will use variable M
-# as we have unknown means in the equation for each class.
+# as we have unknown means in the equation for each class distribution.
 total_sum = 0
 M = 3
-for key in grouped.groups.keys():
+for key in class_keys:
     s = np.square(grouped.get_group(key) - mean_j[key])
     total_sum += s.sum()
 common_variance = total_sum / (n_total - M)
@@ -108,7 +111,7 @@ print("The common variance for three classes is:",common_variance)
 
 # ## 1.3
 
-# In[4]:
+# In[3]:
 
 
 # Calculates prior probabilities based on the count of individual classes
@@ -119,7 +122,7 @@ print("The individual prior probabilities of all classes in same order are :",pr
 
 # ## 1.4
 
-# In[8]:
+# In[4]:
 
 
 # Calculates value of gaussian probability function for given 
@@ -134,7 +137,7 @@ def plugin_gaussian_function(x, mean, variance):
 # mean and common variance
 def compute_using_ML_classifier(x):
     res = []
-    for key in grouped.groups.keys():
+    for key in class_keys:
         res.append(plugin_gaussian_function(x, mean_j[key], common_variance))
     return np.array(res).argmax()
 
@@ -142,7 +145,7 @@ def compute_using_ML_classifier(x):
 # mean,prior probability and common variance
 def compute_using_MAP_classifier(x):
     res = []
-    for key in grouped.groups.keys():
+    for key in class_keys:
         res.append(plugin_gaussian_function(x, mean_j[key], common_variance) * prior_prob[key])
     return np.array(res).argmax()
 
@@ -158,7 +161,7 @@ def compute_using_MAP_classifier(x):
 L = np.array([[-1, 2, 4], [2, 0, 4], [4, 4, 0]])
 def compute_using_GeneralLossBayes_classifier(x):
     res = []
-    for key in grouped.groups.keys():
+    for key in class_keys:
         res.append(plugin_gaussian_function(x, mean_j[key], common_variance) * prior_prob[key])
     A = np.array(res).reshape(1,3)
     B = np.dot(A,L)
@@ -195,18 +198,60 @@ print("Number of samples correctly classified:", (res_glb==df_test["ClassLabel"]
 
 # ### (a)
 
-# In[ ]:
+# In[5]:
 
 
-### Your code for 1.5(a) goes here ###
+n_test_total = len(df_test)
+
+empirical_loss_ML = (res_ml!=df_test["ClassLabel"]).sum() / n_test_total
+
+empirical_loss_MAP = (res_map!=df_test["ClassLabel"]).sum() / n_test_total
+
+empirical_loss_GLB = (res_glb!=df_test["ClassLabel"]).sum() / n_test_total
+
+print("Empirical 0/1 Loss for ML classifier:",empirical_loss_ML)
+print("\n")
+print("Empirical 0/1 Loss for MAP classifier:",empirical_loss_MAP)
+print("\n")
+print("Empirical 0/1 Loss for GLB classifier:",empirical_loss_GLB)
 
 
 # ### (b)
 
-# In[ ]:
+# In[6]:
 
 
-### Your code for 1.5(b) goes here ###
+# Now our Loss Matrix corresponds to loss function in 
+# such a way that i represents true class and j represents
+# predicted class for L[i,j]
+
+Lij_pair_ML = []
+for i in range(len(df_test)):
+    Lij_pair_ML.append((np.int64(df_test["ClassLabel"][i]), res_ml[i]))
+
+Lij_pair_MAP = []
+for i in range(len(df_test)):
+    Lij_pair_MAP.append((np.int64(df_test["ClassLabel"][i]), res_map[i]))
+
+Lij_pair_GLB = []
+for i in range(len(df_test)):
+    Lij_pair_GLB.append((np.int64(df_test["ClassLabel"][i]), res_glb[i]))
+
+def compute_average_loss(Lij_pair_list):
+    for pair in Lij_pair_list:
+        yield L[pair[0],pair[1]]
+
+average_loss_ML = sum(compute_average_loss(Lij_pair_ML)) / n_test_total
+
+average_loss_MAP = sum(compute_average_loss(Lij_pair_MAP)) / n_test_total
+
+average_loss_GLB = sum(compute_average_loss(Lij_pair_GLB)) / n_test_total
+
+print("Average Loss for ML classifier:",average_loss_ML)
+print("\n")
+print("Average Loss for MAP classifier:",average_loss_MAP)
+print("\n")
+print("Average Loss for GLB classifier:",average_loss_GLB)
 
 
 # ## 1.6
