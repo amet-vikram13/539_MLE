@@ -24,7 +24,7 @@ drive.mount('/content/drive')
 '''
 
 
-# In[1]:
+# In[2]:
 
 
 # import relevant Python libraries
@@ -43,7 +43,7 @@ from IPython.display import display, Latex
 
 # ### (a)
 
-# In[2]:
+# In[3]:
 
 
 df = pd.read_csv("NoiseClassificationTrainingData.csv")
@@ -93,25 +93,43 @@ print("The common variance for three classes is:",common_variance)
 
 # ### (b)
 
-# _[Your answer for 1.1(b) goes here]_
+# After investigating the **np.var()** function, it observed that by default np.var() function gives **MLE estimate** of the variance for a given sample data points. As per the definition of the np.var() function in the numpy documentation, we can see that the parameter **ddof** is the **"Delta Degrees of Freedom"** and is the divisor used in the calculation is as ``N - ddof``, where ``N`` represents the number of elements. By default **ddof** is zero. Therefore, it is clear that by default **np.var()** gives the **biased MLE estimate** of variance. To get the unbiased variance we have to give the parameter **ddof** as 1.
 
 # ## 1.2
 
 # ### (a)
 
-# In[ ]:
+# In[4]:
 
 
+plt.figure(figsize=(12, 8))
 
+# Defining bins and color scheme
+bins = np.linspace(df["NoiseLevel"].min(), df["NoiseLevel"].max(), 30)
+color = ["blue", "green", "red"]
+
+for key in class_keys:
+    plt.hist(grouped.get_group(key), bins=bins, density=True, alpha=0.5, color=color[int(key)], label="Class {} Histogram".format(key))
+    x_values = np.linspace(grouped.min()[key], grouped.max()[key], 100)
+    plt.plot(x_values, 
+             sps.norm.pdf(x_values, mean_j[key], np.sqrt(common_variance)), color=color[int(key)], linestyle='--', label="Class {} Gaussian PDF".format(key)
+    )
+
+plt.xlabel("NoiseLevel")
+plt.ylabel("Density")
+plt.title("Histograms and Gaussian PDFs of 'NoiseLevel' for each class for training data")
+plt.legend()
+plt.grid(True)
+plt.show()
 
 
 # ### (b)
 
-# _[Your answer for 1.2(b) goes here]_
+# Based on the histograms and the overlayed Gaussian PDFs, we can conclude that the assumption of common variance but different means is a reasonable assumption for the given sample "NoiseLevel" data points. As we can see that for each class, the gaussian pdf is covering the maximum portion of histogram, although there are few outliers which does not fit into the pdf. Overall, we can conclude that the gaussian with different means and common variance is a valid pdf for the data points.
 
 # ## 1.3
 
-# In[3]:
+# In[5]:
 
 
 # Calculates prior probabilities based on the count of individual classes
@@ -122,7 +140,7 @@ print("The individual prior probabilities of all classes in same order are :",pr
 
 # ## 1.4
 
-# In[4]:
+# In[6]:
 
 
 # Calculates value of gaussian probability function for given 
@@ -198,7 +216,7 @@ print("Number of samples correctly classified:", (res_glb==df_test["ClassLabel"]
 
 # ### (a)
 
-# In[5]:
+# In[7]:
 
 
 n_test_total = len(df_test)
@@ -218,7 +236,7 @@ print("Empirical 0/1 Loss for GLB classifier:",empirical_loss_GLB)
 
 # ### (b)
 
-# In[6]:
+# In[8]:
 
 
 # Now our Loss Matrix corresponds to loss function in 
@@ -258,16 +276,16 @@ print("Average Loss for GLB classifier:",average_loss_GLB)
 
 # ### (a)
 
-# _[Your answer for 1.6(a) goes here]_
+# The **MAP** classifier is theoretically designed to minimize the Expected 0/1 Loss.
 
 # ### (b)
 
-# _[Your answer for 1.6(b) goes here]_
+# The **General Bayes'** classifier is theoretically designed to minimize the Expected general loss, given a loss matrix.
 
 # ### (c)
 
-# _[Your answer for 1.6(c) goes here]_
+# The empirical results for **Expected 0/1 Loss** in solution **1.5(a)** does not align with theoretical gurantees. The **MAP** classifier should have the least expected 0/1 loss but instead the **General Bayes'** classifier has the least expected 0/1 loss. For the empirical average loss, the empirical results in solution **1.5(b)** aligns with the theoretical gurantees that is the **General Bayes'** has the least **Expected general loss**.
 
 # ### (d)
 
-# _[Your answer for 1.6(d) goes here]_
+# The empirical results for **Expected 0/1 Loss** does not align with the theoretical gurantees because we are using the **plugin MAP classifier** and thus estimating our own **sample mean** and **sample variance.** For the true **population mean** and **population variance**, the **MAP** classifer will have the least empirical Expected 0/1 loss, because it will give the **exact posterior probability (Y/xi)** for a given sample point. If we have large number of data samples, then by **Law of Large Number**, our **sample mean will be closer to population mean** and thus we will get a **more accurate value of posterior probability** and thus the subsequent plugin MAP classifier will have least Expected 0/1 Loss.
