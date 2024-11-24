@@ -82,7 +82,7 @@ plt.show()
 
 # ### (a)
 
-# In[30]:
+# In[17]:
 
 
 ## Now for LDA, we know as it is a plugin MAP classifier
@@ -145,7 +145,7 @@ def estimate_common_covariance_matrix(data,column_name):
     itr_sum = np.zeros((2,2))
 
     n_total = len(data)
-    M = len(feature_order)
+    M = len(label_order)
     
     for label in label_order:
         class_data = gr.get_group(label)[feature_order]
@@ -207,7 +207,7 @@ def classifier_LDA(data_train,column_name,data_test):
 
 # ### (b)
 
-# In[32]:
+# In[18]:
 
 
 ## Now for QDA, we know as it is a plugin MAP classifier
@@ -312,7 +312,7 @@ def classifier_QDA(data_train,column_name,data_test):
 
 # ### (c)
 
-# In[53]:
+# In[19]:
 
 
 ## Now for Gaussian Naive Bayes, we know as it is a plugin MAP classifier
@@ -408,7 +408,7 @@ def classifier_GNB(data_train,column_name,data_test):
 
 # ### (d)
 
-# In[147]:
+# In[20]:
 
 
 ## Now for KNN classifier, we know that for a given
@@ -448,7 +448,7 @@ def find_majority_neighbourhood(data,dist_list):
     return ans
 
 ## KNN Classifier
-def compute_neighbourhood_labels(data,K):
+def classifier_KNN(data,K):
     assert K<len(data)
     
     feature_order = ["ChemA","ChemB"]
@@ -467,7 +467,7 @@ def compute_neighbourhood_labels(data,K):
     for i in range(0,len(data)):
         nbh = [(np.inf,-1) for i in range(K)]
         
-        x0 = data.iloc[0].loc[feature_order].to_numpy()
+        xi = data.iloc[i].loc[feature_order].to_numpy()
 
         ## checking from previously computed distances
         ## as L2(i,j) == L2(j,i)
@@ -478,7 +478,7 @@ def compute_neighbourhood_labels(data,K):
 
         for j in range(i+1,len(data)):
             x = data.iloc[j].loc[feature_order].to_numpy()
-            d = np.linalg.norm(x - x0,ord=2)
+            d = np.linalg.norm(x - xi,ord=2)
             nbh = insertion_sort(nbh, (d,j))
             full_nbh[i][j] = d
         
