@@ -410,7 +410,7 @@ def classifier_GNB(data_train,column_name,data_test):
 
 # ### (d)
 
-# In[40]:
+# In[6]:
 
 
 ## Now for KNN classifier, we know that for a given
@@ -837,7 +837,7 @@ plt.show()
 
 # ### (b)
 
-# In[31]:
+# In[9]:
 
 
 ## Now for QDA Classifier, we know that decision boundary corresponds to
@@ -930,7 +930,7 @@ plt.show()
 
 # ### (c)
 
-# In[35]:
+# In[8]:
 
 
 ## Now for GNB Classifier, we know that decision boundary corresponds to
@@ -1014,7 +1014,7 @@ plt.show()
 
 # ### (d)
 
-# In[ ]:
+# In[61]:
 
 
 ## Now for KNN Classifier, we dont have any equation
@@ -1067,7 +1067,7 @@ plt.show()
 
 # ### (e)
 
-# In[36]:
+# In[21]:
 
 
 ## Now for the given idead Bayes' classifier we know that 
@@ -1085,7 +1085,7 @@ feature_order = ["ChemA","ChemB"]
 res_col = "ClassLabel"
 
 ## Given parameters
-C = pd.Series([np.array([[3, 0], [1, 0]]).reshape(2,2),
+C = pd.Series([np.array([[3, 0], [0, 1]]).reshape(2,2),
                np.array([[2, -1], [-1, 2]]).reshape(2,2)],index=label_order)
 mean_matrix = pd.DataFrame(np.array([[-2, 2],[2,0]]).reshape(2,2),columns=feature_order,index=label_order)
 
@@ -1117,7 +1117,7 @@ z = np.zeros_like(x1)
 
 for i in range(len(x1)):
     for j in range(len(x1)):
-        z[i][j] = QDA_equation(np.array([x1[i][j], x2[i][j]]).reshape(2,1))
+        z[i][j] = QDA_equation(np.array([x1[i][j], x2[i][j]]).reshape(2,1),C=C,mean_matrix=mean_matrix)
 
 
 ax.contour(x1,x2,z,levels=[0], colors="black")
